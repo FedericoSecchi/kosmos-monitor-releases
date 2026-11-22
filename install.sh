@@ -58,9 +58,10 @@ main() {
   fi
 
   # 4. Descargar a una carpeta temporal (se borra siempre al terminar, salga bien o mal)
-  local tmp
-  tmp="$(mktemp -d "${TMPDIR:-/tmp}/kosmos-instalar.XXXXXX")"
-  trap 'rm -rf "$tmp"' EXIT
+  # global (no local): el trap de salida corre después de que main() terminó
+  KOSMOS_TMP="$(mktemp -d "${TMPDIR:-/tmp}/kosmos-instalar.XXXXXX")"
+  trap 'rm -rf "${KOSMOS_TMP:-}"' EXIT
+  local tmp="$KOSMOS_TMP"
   say "→ Descargando la última versión…"
   if ! curl -fsSL --retry 2 --connect-timeout 15 -o "$tmp/KosmosMonitor.zip" "$url"; then
     fail "No se pudo descargar Kosmos Monitor. Revisá que haya internet y volvé a correr el mismo comando."
